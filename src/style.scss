@@ -1,0 +1,170 @@
+@import "compass/css3";
+
+@function toFixed($float,$digits: 2) {
+	$pow: pow(10,$digits);
+	@return round($float * $pow) / $pow;
+}
+
+@mixin shadowAndTransform($iteration,$iterations) {
+	#{toFixed(100% * ($iteration / $iterations))} {
+		$aInc: 6 * $iteration;
+		$sin: sin($aInc * pi()/180);
+		$cos: cos($aInc * pi()/180);
+		$x1: toFixed(0.1em * $sin);
+		$y1: toFixed(0.1em * $cos);
+		$x2: toFixed(-0.1em * $sin);
+		$y2: toFixed(-0.1em * $cos);
+		$x3: toFixed(1em * $sin);
+		$y3: toFixed(1em * $cos);
+
+		box-shadow:
+			$x1 $y1 0.1em hsla(0,0%,100%,0.1) inset,
+			$x2 $y2 0.1em hsla(0,0%,0%,0.3) inset,
+			$x3 $y3 0.5em hsla(0,0%,0%,0.3);
+		transform: rotate(6deg * $iteration) translateY(-1.25em);
+	}
+}
+
+* {
+	border: 0;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+$hue: 223;
+:root {
+	--bg: linear-gradient(hsl($hue,10%,90%),hsl($hue,10%,70%));
+	--fg: hsl($hue,10%,10%);
+	--primary1: hsl($hue,90%,55%);
+	--primary2: hsl($hue,90%,65%);
+	font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));
+}
+body {
+	background: var(--bg);
+	color: var(--fg);
+	font: 1em/1.5 sans-serif;
+	height: 100vh;
+	min-height: 480px;
+	display: grid;
+	place-items: center;
+}
+.clock {
+	box-shadow:
+		0 -1em 1em hsla(0,0%,0%,0.3) inset,
+		0 0.5em 1em hsla(0,0%,100%,0.1) inset,
+		0 -0.5em 1em hsla(0,0%,100%,0.2),
+		0 1em 1em hsla(0,0%,0%,0.3);
+	position: relative;
+	width: 16em;
+	height: 16em;
+
+	&,
+	&:before,
+	&:after {
+		border-radius: 50%;
+	}
+	&:before,
+	&:after,
+	&__hand {
+		position: absolute;
+	}
+	&:before,
+	&:after {
+		content: "";
+		display: block;
+	}
+	&:before {
+		box-shadow:
+			0 0 1em 0.5em hsla(0,0%,0%,0.1) inset,
+			0 -0.5em 1em 0.5em hsla(0,0%,0%,0.1);
+		top: 2.5em;
+		left: 2.5em;
+		width: 11em;
+		height: 11em;
+	}
+	&:after {
+		box-shadow:
+			0 0.1em 0.1em hsla(0,0%,100%,0.3) inset,
+			0 -0.1em 0.1em hsla(0,0%,0%,0.3) inset,
+			0 0.2em 0.2em hsla(0,0%,0%,0.3);
+		top: calc(50% - 0.5em);
+		left: calc(50% - 0.5em);
+		width: 1em;
+		height: 1em;
+	}
+	&__hand {
+		box-shadow:
+			0 0.1em 0.1em hsla(0,0%,100%,0.1) inset,
+			0 -0.1em 0.1em hsla(0,0%,0%,0.3) inset,
+			0 1em 0.5em hsla(0,0%,0%,0.3);
+		bottom: 50%;
+		transform-origin: 50% 100%;
+		transform: rotate(0) translateY(-1.25em);
+
+		&--hr {
+			animation: shortHand 86400s linear infinite;
+			background: var(--primary1);
+			border-radius: 0.5em;
+			left: calc(50% - 0.5em);
+			width: 1em;
+			height: 3.2em;
+		}
+		&--min {
+			animation: longHand 3600s linear infinite;
+			background: var(--primary2);
+			border-radius: 0.4em;
+			left: calc(50% - 0.4em);
+			width: 0.8em;
+			height: 3.6em;
+		}
+		&--sec {
+			animation: longHand 60s cubic-bezier(0.8,0,0.2,1) infinite;
+			background: var(--fg);
+			border-radius: 0.3em;
+			left: calc(50% - 0.3em);
+			width: 0.6em;
+			height: 4em;
+		}
+	}
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: linear-gradient(hsl($hue,10%,40%),hsl($hue,10%,20%));
+		--fg: hsl($hue,10%,90%);
+	}
+	.clock {
+		box-shadow:
+			0 -1em 1em hsla(0,0%,0%,0.3) inset,
+			0 0.5em 1em hsla(0,0%,100%,0.05) inset,
+			0 -0.5em 1em hsla(0,0%,100%,0.05),
+			0 1em 1em hsla(0,0%,0%,0.4);
+
+		&:before {
+			box-shadow:
+				0 0 1em 0.5em hsla(0,0%,0%,0.2) inset,
+				0 -0.5em 1em 0.5em hsla(0,0%,0%,0.2);
+		}
+		&:after {
+			box-shadow:
+				0 0.1em 0.1em hsla(0,0%,100%,0.1) inset,
+				0 -0.1em 0.1em hsla(0,0%,0%,0.3) inset,
+				0 0.2em 0.2em hsla(0,0%,0%,0.7);
+		}
+	}
+}
+
+/* Animations */
+@keyframes shortHand {
+	@for $i from 0 through 120 {
+		@include shadowAndTransform($i,120);
+	}
+}
+
+@keyframes longHand {
+	@for $i from 0 through 60 {
+		@include shadowAndTransform($i,60);
+	}
+}
